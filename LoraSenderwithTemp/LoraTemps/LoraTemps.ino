@@ -44,7 +44,6 @@ static RadioEvents_t RadioEvents;
 double txNumber;
 
 int16_t rssi,rxSize;
-void  DoubleToString( char *str, double double_num,unsigned int len);
 
 
 OneWire oneWire(ONE_WIRE_BUS);
@@ -69,7 +68,6 @@ static void prepareTxFrame( uint8_t port )
   Serial.print("Content of temp float value from Sensor: = ");
   Serial.print(temp);
   Serial.println (" Degrees Celsius");
-  Serial.println ("Preparing to send data via Semtex Radio ");
   Serial.println();
   delay(500); // Wait for a while before proceeding
  
@@ -96,8 +94,7 @@ void setup() {
   boardInitMcu();
   sensors.begin();
 	Serial.begin(115200);
-  delay(200);  
-  Serial.println("LORAWAN (LM) Dallas Temperature IC Control single sensor demo");
+  delay(200);
   Serial.print("Requesting temperatures...");
   sensors.requestTemperatures(); // Send the command to get temperatures
   Serial.println("DONE");
@@ -121,30 +118,10 @@ void setup() {
                                  LORA_SPREADING_FACTOR, LORA_CODINGRATE,
                                  LORA_PREAMBLE_LENGTH, LORA_FIX_LENGTH_PAYLOAD_ON,
                                  true, 0, 0, LORA_IQ_INVERSION_ON, 3000 ); 
- }
+}
 
 void loop()
 {
-
-//	switch( deviceState )
-//	{
-//		case DEVICE_STATE_INIT:
-//		{
-//#if(AT_SUPPORT)
-//			getDevParam();
-//#endif
-//			printDevParam();
-//			LoRaWAN.init(loraWanClass,loraWanRegion);
-//			deviceState = DEVICE_STATE_JOIN;
-//			break;
-//		}
-//		case DEVICE_STATE_JOIN:
-//		{
-//			LoRaWAN.join();
-//			break;
-//		}
-//		case DEVICE_STATE_SEND:
-	//	{
     sensors.requestTemperatures(); // Send the command to get temperatures again to refresh at every transmission
     leitura = sensors.getTempCByIndex(0);
 
@@ -164,50 +141,4 @@ void loop()
     Radio.Send( (uint8_t *)txpacket, strlen(txpacket) );
 
     delay(100000);
-    }
-  /**
-  * @brief  Double To String
-  * @param  str: Array or pointer for storing strings
-  * @param  double_num: Number to be converted
-  * @param  len: Fractional length to keep
-  * @retval None
-  */
-
-void  DoubleToString( char *str, double double_num,unsigned int len) { 
-  double fractpart, intpart;
-  fractpart = modf(double_num, &intpart);
-  fractpart = fractpart * (pow(10,len));
-  sprintf(str + strlen(str),"%d", (int)(intpart)); //Integer part
-  sprintf(str + strlen(str), ".%d", (int)(fractpart)); //Decimal part
-    
 }
-    
-    
-    //LoRa.beginPacket();
-    //LoRa.setTxPower(14,RF_PACONFIG_PASELECT_PABOOST);
-    //LoRa.print(leitura);
-    //LoRa.endPacket();
-//			prepareTxFrame( appPort );
-//			LoRaWAN.send();
-//			deviceState = DEVICE_STATE_CYCLE;
-//			break;
-//		}
-//		case DEVICE_STATE_CYCLE:
-//		{
-			// Schedule next packet transmission
-//			txDutyCycleTime = appTxDutyCycle + randr( 0, APP_TX_DUTYCYCLE_RND );
-//			LoRaWAN.cycle(txDutyCycleTime);
-//			deviceState = DEVICE_STATE_SLEEP;
-//			break;
-//		}
-//		case DEVICE_STATE_SLEEP:
-//		{
-//			LoRaWAN.sleep();
-//			break;
-//		}
-//		default:
-//		{
-//			deviceState = DEVICE_STATE_INIT;
-//			break;
-		//}
-	//}
