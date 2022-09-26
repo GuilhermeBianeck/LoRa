@@ -129,4 +129,5 @@ void loop()
     Radio.Send( (uint8_t *)txpacket, strlen(txpacket) );
     turnOnRGB(1,0);
     delay(50000);
+    turnOnRGB(1,0);
 }
