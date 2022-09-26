@@ -3,6 +3,9 @@
 #include "Arduino.h"
 #include "LoRaWan_APP.h"
  
+#ifndef LoraWan_RGB
+#define LoraWan_RGB 0
+#endif
 
 #define ONE_WIRE_BUS GPIO5
 #define TEMPERATURE_PRECISION 9
@@ -24,16 +27,6 @@
 #define LORA_SYMBOL_TIMEOUT                         0         // Symbols
 #define LORA_FIX_LENGTH_PAYLOAD_ON                  false
 #define LORA_IQ_INVERSION_ON                        false
-
-
-#define RX_TIMEOUT_VALUE                            1000
-#define BUFFER_SIZE                                 30
-
-#ifndef LoraWan_RGB
-#define LoraWan_RGB 0
-#endif
-
-
 #define RX_TIMEOUT_VALUE                            1000
 #define BUFFER_SIZE                                 30 // Define the payload size here
 
@@ -69,7 +62,7 @@ static void prepareTxFrame( uint8_t port )
   Serial.print(temp);
   Serial.println (" Degrees Celsius");
   Serial.println();
-  delay(500); // Wait for a while before proceeding
+  delay(100); // Wait for a while before proceeding
  
   unsigned char *tempout;
   tempout = (unsigned char *)(&temp);
@@ -100,18 +93,11 @@ void setup() {
   Serial.println("DONE");
   Serial.print("Temperature for the device 1 (index 0) is: ");
   Serial.print(sensors.getTempCByIndex(0)); 
-  Serial.println ("Celsius");
-
-  
-//#if(AT_SUPPORT)
-//	enableAt();
-//#endif
-//	deviceState = DEVICE_STATE_INIT;
-//	LoRaWAN.ifskipjoin();
-
+  Serial.println ("C");
 
   txNumber=0;
   rssi=0;
+
   Radio.Init( &RadioEvents );
   Radio.SetChannel( RF_FREQUENCY );
   Radio.SetTxConfig( MODEM_LORA, TX_OUTPUT_POWER, 0, LORA_BANDWIDTH,
@@ -119,6 +105,8 @@ void setup() {
                                  LORA_PREAMBLE_LENGTH, LORA_FIX_LENGTH_PAYLOAD_ON,
                                  true, 0, 0, LORA_IQ_INVERSION_ON, 3000 ); 
 }
+
+uint8_t i=0;
 
 void loop()
 {
@@ -139,6 +127,6 @@ void loop()
     sprintf(txpacket,"%s",str_temp);
     Serial.printf("\r\nsending packet \"%s\" , length %d\r\n",txpacket, strlen(txpacket));
     Radio.Send( (uint8_t *)txpacket, strlen(txpacket) );
-
-    delay(100000);
+    turnOnRGB(1,0);
+    delay(50000);
 }
