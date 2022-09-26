@@ -2,6 +2,29 @@
 #include <DallasTemperature.h>
 #include "Arduino.h"
 #include "LoRaWan_APP.h"
+
+#define timetillsleep 500
+#define timetillwakeup 30000
+static TimerEvent_t sleep;
+static TimerEvent_t wakeUp;
+uint8_t lowpower=1;
+
+void onSleep()
+{
+  Serial.printf("Going into lowpower mode, %d ms later wake up.\r\n",timetillwakeup);
+  lowpower=1;
+  //timetillwakeup ms later wake up;
+  TimerSetValue( &wakeUp, timetillwakeup );
+  TimerStart( &wakeUp );
+}
+void onWakeUp()
+{
+  Serial.printf("Woke up, %d ms later into lowpower mode.\r\n",timetillsleep);
+  lowpower=0;
+  //timetillsleep ms later into lowpower mode;
+  TimerSetValue( &sleep, timetillsleep );
+  TimerStart( &sleep );
+}
  
 #ifndef LoraWan_RGB
 #define LoraWan_RGB 0
@@ -50,36 +73,6 @@ uint8_t appPort = 2;
 
 uint8_t confirmedNbTrials = 8;
 
-/* Prepares the payload of the frame */
-
-static void prepareTxFrame( uint8_t port )
-{
-
-    // Read temperatures from DS18xxx
-  sensors.begin();
-  float temp = (sensors.getTempCByIndex(0));
-  Serial.print("Content of temp float value from Sensor: = ");
-  Serial.print(temp);
-  Serial.println (" Degrees Celsius");
-  Serial.println();
-  delay(100); // Wait for a while before proceeding
- 
-  unsigned char *tempout;
-  tempout = (unsigned char *)(&temp);
-	uint16_t batteryVoltage = getBatteryVoltage();
-
-  appDataSize = 6;
-	appData[0] = tempout[0];
-	appData[1] = tempout[1];
-	appData[2] = tempout[2];
-	appData[3] = tempout[3];
-
-	appData[4] = (uint8_t)(batteryVoltage>>8);
-	appData[5] = (uint8_t)batteryVoltage;
-	
-	Serial.print("BatteryVoltage:");
-	Serial.println(batteryVoltage);
-}
 
 void setup() {
   pinMode(Vext, OUTPUT);
@@ -104,14 +97,29 @@ void setup() {
                                  LORA_SPREADING_FACTOR, LORA_CODINGRATE,
                                  LORA_PREAMBLE_LENGTH, LORA_FIX_LENGTH_PAYLOAD_ON,
                                  true, 0, 0, LORA_IQ_INVERSION_ON, 3000 ); 
+
+  Radio.Sleep( );
+  TimerInit( &sleep, onSleep );
+  TimerInit( &wakeUp, onWakeUp );
+  onSleep();
+
 }
 
 uint8_t i=0;
 
 void loop()
 {
+
+
+  if(lowpower){
+    lowPowerHandler();
+  }
+
     sensors.requestTemperatures(); // Send the command to get temperatures again to refresh at every transmission
     leitura = sensors.getTempCByIndex(0);
+
+    uint16_t batteryVoltage = getBatteryVoltage();
+
 
     txNumber += 0.01;
 
@@ -127,7 +135,9 @@ void loop()
     sprintf(txpacket,"%s",str_temp);
     Serial.printf("\r\nsending packet \"%s\" , length %d\r\n",txpacket, strlen(txpacket));
     Radio.Send( (uint8_t *)txpacket, strlen(txpacket) );
+    Serial.print("BatteryVoltage:");
+	  Serial.println(batteryVoltage);
     turnOnRGB(1,0);
-    delay(50000);
-    turnOnRGB(1,0);
+    delay(500);
+
 }
