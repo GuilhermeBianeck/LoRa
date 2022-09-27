@@ -1,8 +1,6 @@
 /*
-
   Receive LoRA - send MQTT message to mqtt.tago.io
-
-
+  Code Based on Heltec WiFi Kit and PubSubClient Examples.
 */
 #include "heltec.h" 
 #include "Arduino.h"
@@ -24,11 +22,11 @@ String packet ;
 /* Substitua aqui por um identificador único para você. 
    Caso seu identificador coincidir com o de alguem no 
    mesmo broker MQTT, um dos dois terá a conexão derrubada. */         
-#define MQTT_DTOKEN "YOUR_TOKEN" 
+#define MQTT_DTOKEN "ddde2f73-9e4a-4bad-a540-a24b48cf6465" 
 
-const char* ssid_wifi = "SemEnergia";  
+const char* ssid_wifi = "APARTAMENTO103";  
 /*  WI-FI network password */
-const char* password_wifi = "semenergia123";     
+const char* password_wifi = "a1b2c3d4e5";     
 /* Objeto para conexão a Internet (Wi-Fi) */
 WiFiClient espClient;     
 /* Endereço do broker MQTT que o módulo deve se conectar */

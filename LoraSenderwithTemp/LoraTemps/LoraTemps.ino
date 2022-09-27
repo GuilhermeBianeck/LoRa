@@ -31,7 +31,7 @@ void onWakeUp()
 #endif
 
 #define ONE_WIRE_BUS GPIO5
-#define TEMPERATURE_PRECISION 9
+#define TEMPERATURE_PRECISION 2
 
 #define RF_FREQUENCY                                433000000 // Hz
 
@@ -71,7 +71,7 @@ float leitura;
 /* Application port */
 uint8_t appPort = 2;
 
-uint8_t confirmedNbTrials = 8;
+uint8_t confirmedNbTrials = 4;
 
 
 void setup() {
@@ -139,5 +139,5 @@ void loop()
 	  Serial.println(batteryVoltage);
     turnOnRGB(1,0);
     delay(500);
-
+    turnOnRGB(0,0);
 }
